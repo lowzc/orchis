@@ -1,50 +1,58 @@
+/**
+ * Copyright (c) 2016-2019 人人开源 All rights reserved.
+ *
+ * https://www.renren.io
+ *
+ * 版权所有，侵权必究！
+ */
+
 package com.orchis.admin.service.impl;
 
-import com.platform.dao.SysUserRoleDao;
-import com.platform.service.SysUserRoleService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.orchis.admin.dao.SysUserRoleDao;
+import com.orchis.admin.entity.SysUserRoleEntity;
+import com.orchis.admin.service.SysUserRoleService;
+import com.orchis.common.utils.MapUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 
 /**
  * 用户与角色对应关系
  *
- * @author lipengjun
- * @email 939961241@qq.com
- * @date 2016年9月18日 上午9:45:48
+ * @author Mark sunlightcs@gmail.com
  */
 @Service("sysUserRoleService")
-public class SysUserRoleServiceImpl implements SysUserRoleService {
-    @Autowired
-    private SysUserRoleDao sysUserRoleDao;
+public class SysUserRoleServiceImpl extends ServiceImpl<SysUserRoleDao, SysUserRoleEntity> implements SysUserRoleService {
 
-    @Override
-    public void saveOrUpdate(Long userId, List<Long> roleIdList) {
-        if (roleIdList.size() == 0) {
-            return;
-        }
+	@Override
+	public void saveOrUpdate(Long userId, List<Long> roleIdList) {
+		//先删除用户与角色关系
+		this.removeByMap(new MapUtils().put("user_id", userId));
 
-        //先删除用户与角色关系
-        sysUserRoleDao.delete(userId);
+		if(roleIdList == null || roleIdList.size() == 0){
+			return ;
+		}
 
-        //保存用户与角色关系
-        Map<String, Object> map = new HashMap<>();
-        map.put("userId", userId);
-        map.put("roleIdList", roleIdList);
-        sysUserRoleDao.save(map);
-    }
+		//保存用户与角色关系
+		for(Long roleId : roleIdList){
+			SysUserRoleEntity sysUserRoleEntity = new SysUserRoleEntity();
+			sysUserRoleEntity.setUserId(userId);
+			sysUserRoleEntity.setRoleId(roleId);
 
-    @Override
-    public List<Long> queryRoleIdList(Long userId) {
-        return sysUserRoleDao.queryRoleIdList(userId);
-    }
+			this.save(sysUserRoleEntity);
+		}
+	}
 
-    @Override
-    public void delete(Long userId) {
-        sysUserRoleDao.delete(userId);
-    }
+	@Override
+	public List<Long> queryRoleIdList(Long userId) {
+		return baseMapper.queryRoleIdList(userId);
+	}
+
+	@Override
+	public int deleteBatch(Long[] roleIds){
+		return baseMapper.deleteBatch(roleIds);
+	}
 }

@@ -1,47 +1,60 @@
+/**
+ * Copyright (c) 2016-2019 人人开源 All rights reserved.
+ *
+ * https://www.renren.io
+ *
+ * 版权所有，侵权必究！
+ */
+
 package com.orchis.admin.service.impl;
 
-import com.platform.dao.SysRoleMenuDao;
-import com.platform.service.SysRoleMenuService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.orchis.admin.dao.SysRoleMenuDao;
+import com.orchis.admin.entity.SysRoleMenuEntity;
+import com.orchis.admin.service.SysRoleMenuService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 
 /**
  * 角色与菜单对应关系
  *
- * @author lipengjun
- * @email 939961241@qq.com
- * @date 2016年9月18日 上午9:44:35
+ * @author Mark sunlightcs@gmail.com
  */
 @Service("sysRoleMenuService")
-public class SysRoleMenuServiceImpl implements SysRoleMenuService {
-    @Autowired
-    private SysRoleMenuDao sysRoleMenuDao;
+public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuDao, SysRoleMenuEntity> implements SysRoleMenuService {
 
-    @Override
-    @Transactional
-    public void saveOrUpdate(Long roleId, List<Long> menuIdList) {
-        if (menuIdList.size() == 0) {
-            return;
-        }
-        //先删除角色与菜单关系
-        sysRoleMenuDao.delete(roleId);
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void saveOrUpdate(Long roleId, List<Long> menuIdList) {
+		//先删除角色与菜单关系
+		deleteBatch(new Long[]{roleId});
 
-        //保存角色与菜单关系
-        Map<String, Object> map = new HashMap<>();
-        map.put("roleId", roleId);
-        map.put("menuIdList", menuIdList);
-        sysRoleMenuDao.save(map);
-    }
+		if(menuIdList.size() == 0){
+			return ;
+		}
 
-    @Override
-    public List<Long> queryMenuIdList(Long roleId) {
-        return sysRoleMenuDao.queryMenuIdList(roleId);
-    }
+		//保存角色与菜单关系
+		for(Long menuId : menuIdList){
+			SysRoleMenuEntity sysRoleMenuEntity = new SysRoleMenuEntity();
+			sysRoleMenuEntity.setMenuId(menuId);
+			sysRoleMenuEntity.setRoleId(roleId);
+
+			this.save(sysRoleMenuEntity);
+		}
+	}
+
+	@Override
+	public List<Long> queryMenuIdList(Long roleId) {
+		return baseMapper.queryMenuIdList(roleId);
+	}
+
+	@Override
+	public int deleteBatch(Long[] roleIds){
+		return baseMapper.deleteBatch(roleIds);
+	}
 
 }

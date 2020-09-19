@@ -1,23 +1,34 @@
+/**
+ * Copyright (c) 2016-2019 人人开源 All rights reserved.
+ *
+ * https://www.renren.io
+ *
+ * 版权所有，侵权必究！
+ */
+
 package com.orchis.admin.service.impl;
 
-import com.platform.dao.SysUserDao;
-import com.platform.entity.SysUserEntity;
-import com.platform.entity.UserWindowDto;
-import com.platform.page.Page;
-import com.platform.page.PageHelper;
-import com.platform.service.SysRoleService;
-import com.platform.service.SysUserRoleService;
-import com.platform.service.SysUserService;
-import com.platform.utils.Constant;
-import com.platform.utils.RRException;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.orchis.admin.dao.SysUserDao;
+import com.orchis.admin.entity.SysUserEntity;
+import com.orchis.admin.service.SysRoleService;
+import com.orchis.admin.service.SysUserRoleService;
+import com.orchis.admin.service.SysUserService;
+import com.orchis.common.exception.RRException;
+import com.orchis.common.utils.Constant;
+import com.orchis.common.utils.PageUtils;
+import com.orchis.common.utils.Query;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,120 +36,110 @@ import java.util.Map;
 /**
  * 系统用户
  *
- * @author 李鹏军
- * @email 939961241@qq.com
- * @date 2016年12月18日 上午9:46:09
+ * @author Mark sunlightcs@gmail.com
  */
 @Service("sysUserService")
-public class SysUserServiceImpl implements SysUserService {
+public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUserEntity> implements SysUserService {
+	@Autowired
+	private SysUserRoleService sysUserRoleService;
+	@Autowired
+	private SysRoleService sysRoleService;
 
-    @Autowired
-    private SysUserDao sysUserDao;
-    @Autowired
-    private SysUserRoleService sysUserRoleService;
-    @Autowired
-    private SysRoleService sysRoleService;
+	@Override
+	public PageUtils queryPage(Map<String, Object> params) {
+		String username = (String)params.get("username");
+		Long createUserId = (Long)params.get("createUserId");
 
-    @Override
-    public List<String> queryAllPerms(Long userId) {
-        return sysUserDao.queryAllPerms(userId);
-    }
+		IPage<SysUserEntity> page = this.page(
+			new Query<SysUserEntity>().getPage(params),
+			new QueryWrapper<SysUserEntity>()
+				.like(StringUtils.isNotBlank(username),"username", username)
+				.eq(createUserId != null,"create_user_id", createUserId)
+		);
 
-    @Override
-    public List<Long> queryAllMenuId(Long userId) {
-        return sysUserDao.queryAllMenuId(userId);
-    }
+		return new PageUtils(page);
+	}
 
-    @Override
-    public SysUserEntity queryByUserName(String username) {
-        return sysUserDao.queryByUserName(username);
-    }
+	@Override
+	public List<String> queryAllPerms(Long userId) {
+		return baseMapper.queryAllPerms(userId);
+	}
 
-    @Override
-    public SysUserEntity queryObject(Long userId) {
-        return sysUserDao.queryObject(userId);
-    }
+	@Override
+	public List<Long> queryAllMenuId(Long userId) {
+		return baseMapper.queryAllMenuId(userId);
+	}
 
-    @Override
-    public List<SysUserEntity> queryList(Map<String, Object> map) {
-        return sysUserDao.queryList(map);
-    }
+	@Override
+	public SysUserEntity queryByUserName(String username) {
+		return baseMapper.queryByUserName(username);
+	}
 
-    @Override
-    public int queryTotal(Map<String, Object> map) {
-        return sysUserDao.queryTotal(map);
-    }
+	@Override
+	@Transactional
+	public void saveUser(SysUserEntity user) {
+		user.setCreateTime(new Date());
+		//sha256加密
+		String salt = RandomStringUtils.randomAlphanumeric(20);
+		user.setPassword(new Sha256Hash(user.getPassword(), salt).toHex());
+		user.setSalt(salt);
+		this.save(user);
+		
+		//检查角色是否越权
+		checkRole(user);
+		
+		//保存用户与角色关系
+		sysUserRoleService.saveOrUpdate(user.getUserId(), user.getRoleIdList());
+	}
 
-    @Override
-    @Transactional
-    public void save(SysUserEntity user) {
-        user.setCreateTime(new Date());
-        //sha256加密
-        user.setPassword(new Sha256Hash(Constant.DEFAULT_PASS_WORD).toHex());
-        sysUserDao.save(user);
+	@Override
+	@Transactional
+	public void update(SysUserEntity user) {
+		if(StringUtils.isBlank(user.getPassword())){
+			user.setPassword(null);
+		}else{
+			user.setPassword(new Sha256Hash(user.getPassword(), user.getSalt()).toHex());
+		}
+		this.updateById(user);
+		
+		//检查角色是否越权
+		checkRole(user);
+		
+		//保存用户与角色关系
+		sysUserRoleService.saveOrUpdate(user.getUserId(), user.getRoleIdList());
+	}
 
-        //检查角色是否越权
-        checkRole(user);
+	@Override
+	public void deleteBatch(Long[] userId) {
+		this.removeByIds(Arrays.asList(userId));
+	}
 
-        //保存用户与角色关系
-        sysUserRoleService.saveOrUpdate(user.getUserId(), user.getRoleIdList());
-    }
+	@Override
+	public boolean updatePassword(Long userId, String password, String newPassword) {
+		SysUserEntity userEntity = new SysUserEntity();
+		userEntity.setPassword(newPassword);
+		return this.update(userEntity,
+				new QueryWrapper<SysUserEntity>().eq("user_id", userId).eq("password", password));
+	}
+	
+	/**
+	 * 检查角色是否越权
+	 */
+	private void checkRole(SysUserEntity user){
+		if(user.getRoleIdList() == null || user.getRoleIdList().size() == 0){
+			return;
+		}
+		//如果不是超级管理员，则需要判断用户的角色是否自己创建
+		if(user.getCreateUserId() == Constant.SUPER_ADMIN){
+			return ;
+		}
+		
+		//查询用户创建的角色列表
+		List<Long> roleIdList = sysRoleService.queryRoleIdList(user.getCreateUserId());
 
-    @Override
-    @Transactional
-    public void update(SysUserEntity user) {
-        if (StringUtils.isBlank(user.getPassword())) {
-            user.setPassword(new Sha256Hash(Constant.DEFAULT_PASS_WORD).toHex());
-        } else {
-            user.setPassword(new Sha256Hash(user.getPassword()).toHex());
-        }
-        sysUserDao.update(user);
-
-        //检查角色是否越权
-        checkRole(user);
-
-        //保存用户与角色关系
-        sysUserRoleService.saveOrUpdate(user.getUserId(), user.getRoleIdList());
-    }
-
-    @Override
-    @Transactional
-    public void deleteBatch(Long[] userId) {
-        sysUserDao.deleteBatch(userId);
-    }
-
-    @Override
-    public int updatePassword(Long userId, String password, String newPassword) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("userId", userId);
-        map.put("password", password);
-        map.put("newPassword", newPassword);
-        return sysUserDao.updatePassword(map);
-    }
-
-    /**
-     * 检查角色是否越权
-     */
-    private void checkRole(SysUserEntity user) {
-        //如果不是超级管理员，则需要判断用户的角色是否自己创建
-        if (user.getCreateUserId() == Constant.SUPER_ADMIN) {
-            return;
-        }
-
-        //查询用户创建的角色列表
-        List<Long> roleIdList = sysRoleService.queryRoleIdList(user.getCreateUserId());
-
-        //判断是否越权
-        if (!roleIdList.containsAll(user.getRoleIdList())) {
-            throw new RRException("新增用户所选角色，不是本人创建");
-        }
-    }
-
-
-    @Override
-    public Page<UserWindowDto> findPage(UserWindowDto userWindowDto, int pageNum) {
-        PageHelper.startPage(pageNum, Constant.pageSize);
-        sysUserDao.queryListByBean(userWindowDto);
-        return PageHelper.endPage();
-    }
+		//判断是否越权
+		if(!roleIdList.containsAll(user.getRoleIdList())){
+			throw new RRException("新增用户所选角色，不是本人创建");
+		}
+	}
 }

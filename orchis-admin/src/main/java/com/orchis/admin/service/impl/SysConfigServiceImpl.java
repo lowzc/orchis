@@ -1,71 +1,98 @@
+/**
+ * Copyright (c) 2016-2019 人人开源 All rights reserved.
+ *
+ * https://www.renren.io
+ *
+ * 版权所有，侵权必究！
+ */
+
 package com.orchis.admin.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.platform.dao.SysConfigDao;
-import com.platform.entity.SysConfigEntity;
-import com.platform.service.SysConfigService;
-import com.platform.utils.RRException;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.gson.Gson;
+import com.orchis.admin.dao.SysConfigDao;
+import com.orchis.admin.entity.SysConfigEntity;
+import com.orchis.admin.redis.SysConfigRedis;
+import com.orchis.admin.service.SysConfigService;
+import com.orchis.common.exception.RRException;
+import com.orchis.common.utils.PageUtils;
+import com.orchis.common.utils.Query;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
 
 @Service("sysConfigService")
-public class SysConfigServiceImpl implements SysConfigService {
+public class SysConfigServiceImpl extends ServiceImpl<SysConfigDao, SysConfigEntity> implements SysConfigService {
 	@Autowired
-	private SysConfigDao sysConfigDao;
-	
+	private SysConfigRedis sysConfigRedis;
+
 	@Override
-	public void save(SysConfigEntity config) {
-		sysConfigDao.save(config);
+	public PageUtils queryPage(Map<String, Object> params) {
+		String paramKey = (String)params.get("paramKey");
+
+		IPage<SysConfigEntity> page = this.page(
+			new Query<SysConfigEntity>().getPage(params),
+			new QueryWrapper<SysConfigEntity>()
+				.like(StringUtils.isNotBlank(paramKey),"param_key", paramKey)
+				.eq("status", 1)
+		);
+
+		return new PageUtils(page);
 	}
 
 	@Override
+	public void saveConfig(SysConfigEntity config) {
+		this.save(config);
+		sysConfigRedis.saveOrUpdate(config);
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public void update(SysConfigEntity config) {
-		sysConfigDao.update(config);
+		this.updateById(config);
+		sysConfigRedis.saveOrUpdate(config);
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public void updateValueByKey(String key, String value) {
-		sysConfigDao.updateValueByKey(key, value);
+		baseMapper.updateValueByKey(key, value);
+		sysConfigRedis.delete(key);
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public void deleteBatch(Long[] ids) {
-		sysConfigDao.deleteBatch(ids);
-	}
-
-	@Override
-	public List<SysConfigEntity> queryList(Map<String, Object> map) {
-		return sysConfigDao.queryList(map);
-	}
-
-	@Override
-	public int queryTotal(Map<String, Object> map) {
-		return sysConfigDao.queryTotal(map);
-	}
-
-	@Override
-	public SysConfigEntity queryObject(Long id) {
-		return sysConfigDao.queryObject(id);
-	}
-
-	@Override
-	public String getValue(String key, String defaultValue) {
-		String value = sysConfigDao.queryByKey(key);
-		if(StringUtils.isBlank(value)){
-			return defaultValue;
+		for(Long id : ids){
+			SysConfigEntity config = this.getById(id);
+			sysConfigRedis.delete(config.getParamKey());
 		}
-		return value;
+
+		this.removeByIds(Arrays.asList(ids));
+	}
+
+	@Override
+	public String getValue(String key) {
+		SysConfigEntity config = sysConfigRedis.get(key);
+		if(config == null){
+			config = baseMapper.queryByKey(key);
+			sysConfigRedis.saveOrUpdate(config);
+		}
+
+		return config == null ? null : config.getParamValue();
 	}
 	
 	@Override
 	public <T> T getConfigObject(String key, Class<T> clazz) {
-		String value = getValue(key, null);
+		String value = getValue(key);
 		if(StringUtils.isNotBlank(value)){
-			return JSON.parseObject(value, clazz);
+			return new Gson().fromJson(value, clazz);
 		}
 
 		try {

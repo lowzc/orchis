@@ -1,30 +1,28 @@
+/**
+ * Copyright (c) 2016-2019 人人开源 All rights reserved.
+ *
+ * https://www.renren.io
+ *
+ * 版权所有，侵权必究！
+ */
+
 package com.orchis.admin.service;
 
-import com.platform.entity.SysLogEntity;
 
-import java.util.List;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.orchis.admin.entity.SysLogEntity;
+import com.orchis.common.utils.PageUtils;
+
 import java.util.Map;
+
 
 /**
  * 系统日志
  *
- * @author lipengjun
- * @email 939961241@qq.com
- * @date 2017-03-08 10:40:56
+ * @author Mark sunlightcs@gmail.com
  */
-public interface SysLogService {
+public interface SysLogService extends IService<SysLogEntity> {
 
-    SysLogEntity queryObject(Long id);
+    PageUtils queryPage(Map<String, Object> params);
 
-    List<SysLogEntity> queryList(Map<String, Object> map);
-
-    int queryTotal(Map<String, Object> map);
-
-    void save(SysLogEntity sysLog);
-
-    void update(SysLogEntity sysLog);
-
-    void delete(Long id);
-
-    void deleteBatch(Long[] ids);
 }

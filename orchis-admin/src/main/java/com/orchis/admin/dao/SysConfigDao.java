@@ -1,30 +1,35 @@
+/**
+ * Copyright (c) 2016-2019 人人开源 All rights reserved.
+ *
+ * https://www.renren.io
+ *
+ * 版权所有，侵权必究！
+ */
+
 package com.orchis.admin.dao;
 
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.orchis.admin.entity.SysConfigEntity;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
  * 系统配置信息
  *
- * @author lipengjun
- * @email 939961241@qq.com
- * @date 2016年12月4日 下午6:46:16
+ * @author Mark sunlightcs@gmail.com
  */
-public interface SysConfigDao extends BaseDao<SysConfigEntity> {
+@Mapper
+public interface SysConfigDao extends BaseMapper<SysConfigEntity> {
 
-    /**
-     * 根据key，查询value
-     */
-    String queryByKey(String paramKey);
+	/**
+	 * 根据key，查询value
+	 */
+	SysConfigEntity queryByKey(String paramKey);
 
-    /**
-     * 根据key，更新value
-     *
-     * @param key
-     * @param value
-     * @return
-     */
-    int updateValueByKey(@Param("key") String key, @Param("value") String value);
-
+	/**
+	 * 根据key，更新value
+	 */
+	int updateValueByKey(@Param("paramKey") String paramKey, @Param("paramValue") String paramValue);
+	
 }

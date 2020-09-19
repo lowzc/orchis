@@ -1,8 +1,16 @@
+/**
+ * Copyright (c) 2016-2019 人人开源 All rights reserved.
+ *
+ * https://www.renren.io
+ *
+ * 版权所有，侵权必究！
+ */
+
 package com.orchis.admin.service;
 
-import com.platform.entity.SysRoleEntity;
-import com.platform.entity.UserWindowDto;
-import com.platform.page.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.orchis.admin.entity.SysRoleEntity;
+import com.orchis.common.utils.PageUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -11,32 +19,21 @@ import java.util.Map;
 /**
  * 角色
  *
- * @author lipengjun
- * @email 939961241@qq.com
- * @date 2016年9月18日 上午9:42:52
+ * @author Mark sunlightcs@gmail.com
  */
-public interface SysRoleService {
+public interface SysRoleService extends IService<SysRoleEntity> {
 
-    SysRoleEntity queryObject(Long roleId);
+	PageUtils queryPage(Map<String, Object> params);
 
-    List<SysRoleEntity> queryList(Map<String, Object> map);
+	void saveRole(SysRoleEntity role);
 
-    int queryTotal(Map<String, Object> map);
+	void update(SysRoleEntity role);
 
-    void save(SysRoleEntity role);
+	void deleteBatch(Long[] roleIds);
 
-    void update(SysRoleEntity role);
-
-    void deleteBatch(Long[] roleIds);
-
-    /**
-     * 查询用户创建的角色ID列表
-     */
-    List<Long> queryRoleIdList(Long createUserId);
-
-    /**
-     * 分页查询角色审批选择范围
-     * @return
-     */
-    Page<UserWindowDto> queryPageByDto(UserWindowDto userWindowDto, int pageNmu);
+	
+	/**
+	 * 查询用户创建的角色ID列表
+	 */
+	List<Long> queryRoleIdList(Long createUserId);
 }

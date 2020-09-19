@@ -1,24 +1,31 @@
+/**
+ * Copyright (c) 2016-2019 人人开源 All rights reserved.
+ *
+ * https://www.renren.io
+ *
+ * 版权所有，侵权必究！
+ */
+
 package com.orchis.admin.service.impl;
 
-import com.platform.dao.SysMenuDao;
-import com.platform.entity.SysMenuEntity;
-import com.platform.service.SysMenuService;
-import com.platform.service.SysRoleMenuService;
-import com.platform.service.SysUserService;
-import com.platform.utils.Constant.MenuType;
+
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.orchis.admin.dao.SysMenuDao;
+import com.orchis.admin.entity.SysMenuEntity;
+import com.orchis.admin.service.SysMenuService;
+import com.orchis.admin.service.SysRoleMenuService;
+import com.orchis.admin.service.SysUserService;
+import com.orchis.common.utils.Constant;
+import com.orchis.common.utils.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 @Service("sysMenuService")
-public class SysMenuServiceImpl implements SysMenuService {
-	@Autowired
-	private SysMenuDao sysMenuDao;
+public class SysMenuServiceImpl extends ServiceImpl<SysMenuDao, SysMenuEntity> implements SysMenuService {
 	@Autowired
 	private SysUserService sysUserService;
 	@Autowired
@@ -26,7 +33,7 @@ public class SysMenuServiceImpl implements SysMenuService {
 	
 	@Override
 	public List<SysMenuEntity> queryListParentId(Long parentId, List<Long> menuIdList) {
-		List<SysMenuEntity> menuList = sysMenuDao.queryListParentId(parentId);
+		List<SysMenuEntity> menuList = queryListParentId(parentId);
 		if(menuIdList == null){
 			return menuList;
 		}
@@ -41,14 +48,19 @@ public class SysMenuServiceImpl implements SysMenuService {
 	}
 
 	@Override
+	public List<SysMenuEntity> queryListParentId(Long parentId) {
+		return baseMapper.queryListParentId(parentId);
+	}
+
+	@Override
 	public List<SysMenuEntity> queryNotButtonList() {
-		return sysMenuDao.queryNotButtonList();
+		return baseMapper.queryNotButtonList();
 	}
 
 	@Override
 	public List<SysMenuEntity> getUserMenuList(Long userId) {
 		//系统管理员，拥有最高权限
-		if(userId == 1){
+		if(userId == Constant.SUPER_ADMIN){
 			return getAllMenuList(null);
 		}
 		
@@ -56,41 +68,13 @@ public class SysMenuServiceImpl implements SysMenuService {
 		List<Long> menuIdList = sysUserService.queryAllMenuId(userId);
 		return getAllMenuList(menuIdList);
 	}
-	
-	@Override
-	public SysMenuEntity queryObject(Long menuId) {
-		return sysMenuDao.queryObject(menuId);
-	}
 
 	@Override
-	public List<SysMenuEntity> queryList(Map<String, Object> map) {
-		return sysMenuDao.queryList(map);
-	}
-
-	@Override
-	public int queryTotal(Map<String, Object> map) {
-		return sysMenuDao.queryTotal(map);
-	}
-
-	@Override
-	public void save(SysMenuEntity menu) {
-		sysMenuDao.save(menu);
-	}
-
-	@Override
-	public void update(SysMenuEntity menu) {
-		sysMenuDao.update(menu);
-	}
-
-	@Override
-	@Transactional
-	public void deleteBatch(Long[] menuIds) {
-		sysMenuDao.deleteBatch(menuIds);
-	}
-	
-	@Override
-	public List<SysMenuEntity> queryUserList(Long userId) {
-		return sysMenuDao.queryUserList(userId);
+	public void delete(Long menuId){
+		//删除菜单
+		this.removeById(menuId);
+		//删除菜单与角色关联
+		sysRoleMenuService.removeByMap(new MapUtils().put("menu_id", menuId));
 	}
 
 	/**
@@ -112,7 +96,8 @@ public class SysMenuServiceImpl implements SysMenuService {
 		List<SysMenuEntity> subMenuList = new ArrayList<SysMenuEntity>();
 		
 		for(SysMenuEntity entity : menuList){
-			if(entity.getType() == MenuType.CATALOG.getValue()){//目录
+			//目录
+			if(entity.getType() == Constant.MenuType.CATALOG.getValue()){
 				entity.setList(getMenuTreeList(queryListParentId(entity.getMenuId(), menuIdList), menuIdList));
 			}
 			subMenuList.add(entity);

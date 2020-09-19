@@ -1,52 +1,33 @@
+/**
+ * Copyright (c) 2016-2019 人人开源 All rights reserved.
+ *
+ * https://www.renren.io
+ *
+ * 版权所有，侵权必究！
+ */
+
 package com.orchis.admin.entity;
 
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
-import org.hibernate.validator.constraints.NotBlank;
+import javax.validation.constraints.NotBlank;
 
 /**
  * 系统配置信息
  *
- * @author lipengjun
- * @email 939961241@qq.com
- * @date 2016年12月4日 下午6:43:36
+ * @author Mark sunlightcs@gmail.com
  */
+@Data
+@TableName("sys_config")
 public class SysConfigEntity {
-    private Long id;
-    @NotBlank(message = "参数名不能为空")
-    private String key;
-    @NotBlank(message = "参数值不能为空")
-    private String value;
-    private String remark;
+	@TableId
+	private Long id;
+	@NotBlank(message="参数名不能为空")
+	private String paramKey;
+	@NotBlank(message="参数值不能为空")
+	private String paramValue;
+	private String remark;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
 }
