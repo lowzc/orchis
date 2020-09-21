@@ -13,6 +13,6 @@ public class ConsoleController {
 
     @GetMapping("/")
     public String loginUi() {
-        return "dsajd";
+        return "login";
     }
 }

@@ -51,7 +51,6 @@ public class SysLoginController extends AbstractController {
 	public void captcha(HttpServletResponse response, String uuid)throws IOException {
 		response.setHeader("Cache-Control", "no-store, no-cache");
 		response.setContentType("image/jpeg");
-
 		//获取图片验证码
 		BufferedImage image = sysCaptchaService.getCaptcha(uuid);
 
@@ -69,7 +68,6 @@ public class SysLoginController extends AbstractController {
 		if(!captcha){
 			return R.error("验证码不正确");
 		}
-
 		//用户信息
 		SysUserEntity user = sysUserService.queryByUserName(form.getUsername());
 
@@ -82,7 +80,6 @@ public class SysLoginController extends AbstractController {
 		if(user.getStatus() == 0){
 			return R.error("账号已被锁定,请联系管理员");
 		}
-
 		//生成token，并保存到数据库
 		R r = sysUserTokenService.createToken(user.getUserId());
 		return r;
