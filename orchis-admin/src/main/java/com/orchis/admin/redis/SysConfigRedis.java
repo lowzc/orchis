@@ -10,8 +10,8 @@ package com.orchis.admin.redis;
 
 
 import com.orchis.admin.entity.SysConfigEntity;
+import com.orchis.admin.utils.RedisUtils;
 import com.orchis.common.utils.RedisKeys;
-import com.orchis.common.utils.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
