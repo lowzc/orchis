@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * 登录相关
@@ -48,9 +49,10 @@ public class SysLoginController extends AbstractController {
 	 * 验证码
 	 */
 	@GetMapping("captcha.jpg")
-	public void captcha(HttpServletResponse response, String uuid)throws IOException {
+	public void captcha(HttpServletResponse response)throws IOException {
 		response.setHeader("Cache-Control", "no-store, no-cache");
 		response.setContentType("image/jpeg");
+		String uuid = UUID.randomUUID().toString().replace("-", "");
 		//获取图片验证码
 		BufferedImage image = sysCaptchaService.getCaptcha(uuid);
 
