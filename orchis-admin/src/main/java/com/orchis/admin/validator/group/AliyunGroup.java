@@ -6,14 +6,12 @@
  * 版权所有，侵权必究！
  */
 
-package com.orchis.common.validator.group;
+package com.orchis.admin.validator.group;
 
 /**
- * 更新数据 Group
+ * 阿里云
  *
  * @author Mark sunlightcs@gmail.com
  */
-
-public interface UpdateGroup {
-
+public interface AliyunGroup {
 }

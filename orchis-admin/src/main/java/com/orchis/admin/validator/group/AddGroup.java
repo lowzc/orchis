@@ -6,12 +6,12 @@
  * 版权所有，侵权必究！
  */
 
-package com.orchis.common.validator.group;
+package com.orchis.admin.validator.group;
 
 /**
- * 七牛
+ * 新增数据 Group
  *
  * @author Mark sunlightcs@gmail.com
  */
-public interface QiniuGroup {
+public interface AddGroup {
 }

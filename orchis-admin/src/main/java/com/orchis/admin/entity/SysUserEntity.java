@@ -11,8 +11,8 @@ package com.orchis.admin.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.orchis.common.validator.group.AddGroup;
-import com.orchis.common.validator.group.UpdateGroup;
+import com.orchis.admin.validator.group.AddGroup;
+import com.orchis.admin.validator.group.UpdateGroup;
 import lombok.Data;
 
 import javax.validation.constraints.Email;

@@ -18,7 +18,7 @@ import com.orchis.admin.redis.SysConfigRedis;
 import com.orchis.admin.service.SysConfigService;
 import com.orchis.common.exception.RRException;
 import com.orchis.common.utils.PageUtils;
-import com.orchis.common.utils.Query;
+import com.orchis.admin.utils.Query;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

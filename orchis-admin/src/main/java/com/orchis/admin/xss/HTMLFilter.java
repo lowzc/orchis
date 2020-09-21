@@ -1,4 +1,4 @@
-package com.orchis.common.xss;
+package com.orchis.admin.xss;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

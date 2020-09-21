@@ -6,12 +6,13 @@
  * 版权所有，侵权必究！
  */
 
-package com.orchis.common.utils;
+package com.orchis.admin.utils;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.orchis.common.xss.SQLFilter;
+import com.orchis.admin.xss.SQLFilter;
+import com.orchis.common.utils.Constant;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Map;

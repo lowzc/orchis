@@ -19,7 +19,7 @@ import com.orchis.admin.service.SysUserService;
 import com.orchis.common.exception.RRException;
 import com.orchis.common.utils.Constant;
 import com.orchis.common.utils.PageUtils;
-import com.orchis.common.utils.Query;
+import com.orchis.admin.utils.Query;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.crypto.hash.Sha256Hash;

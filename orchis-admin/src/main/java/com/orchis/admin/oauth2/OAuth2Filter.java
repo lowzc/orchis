@@ -9,7 +9,7 @@
 package com.orchis.admin.oauth2;
 
 import com.google.gson.Gson;
-import com.orchis.common.utils.HttpContextUtils;
+import com.orchis.admin.utils.HttpContextUtils;
 import com.orchis.common.utils.R;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;

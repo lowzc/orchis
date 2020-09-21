@@ -15,7 +15,7 @@ import com.orchis.admin.dao.SysLogDao;
 import com.orchis.admin.entity.SysLogEntity;
 import com.orchis.admin.service.SysLogService;
 import com.orchis.common.utils.PageUtils;
-import com.orchis.common.utils.Query;
+import com.orchis.admin.utils.Query;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 

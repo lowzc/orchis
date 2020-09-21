@@ -8,7 +8,8 @@
 
 package com.orchis.admin.config;
 
-import com.orchis.common.xss.XssFilter;
+
+import com.orchis.admin.xss.XssFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -6,7 +6,7 @@
  * 版权所有，侵权必究！
  */
 
-package com.orchis.common.validator;
+package com.orchis.admin.validator;
 
 import com.orchis.common.exception.RRException;
 

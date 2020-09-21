@@ -6,7 +6,7 @@
  * 版权所有，侵权必究！
  */
 
-package com.orchis.common.xss;
+package com.orchis.admin.xss;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;

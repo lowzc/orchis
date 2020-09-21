@@ -6,7 +6,7 @@
  * 版权所有，侵权必究！
  */
 
-package com.orchis.common.xss;
+package com.orchis.admin.xss;
 
 
 import com.orchis.common.exception.RRException;

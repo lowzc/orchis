@@ -6,7 +6,7 @@
  * 版权所有，侵权必究！
  */
 
-package com.orchis.common.utils;
+package com.orchis.admin.utils;
 
 import com.alibaba.druid.util.StringUtils;
 import org.slf4j.Logger;

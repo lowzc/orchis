@@ -11,10 +11,10 @@ package com.orchis.admin.controller;
 
 import com.orchis.admin.entity.SysConfigEntity;
 import com.orchis.admin.service.SysConfigService;
+import com.orchis.admin.validator.ValidatorUtils;
 import com.orchis.common.annotation.SysLog;
 import com.orchis.common.utils.PageUtils;
 import com.orchis.common.utils.R;
-import com.orchis.common.validator.ValidatorUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

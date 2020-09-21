@@ -6,9 +6,10 @@
  * 版权所有，侵权必究！
  */
 
-package com.orchis.common.exception;
+package com.orchis.admin.exception;
 
 
+import com.orchis.common.exception.RRException;
 import com.orchis.common.utils.R;
 import org.apache.shiro.authz.AuthorizationException;
 import org.slf4j.Logger;
