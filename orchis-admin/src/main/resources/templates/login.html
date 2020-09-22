@@ -101,6 +101,7 @@
             username: 'admin',
             password: 'admin',
             captcha: '',
+            uuid: '',
             src: 'captcha.jpg'
         },
         beforeCreate: function () {
@@ -109,7 +110,13 @@
             }
         },
         methods: {
+            uuid : function getUUID () {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+            return (c === 'x' ? (Math.random() * 16 | 0) : ('r&0x3' | '0x8')).toString(16)
+             })
+           },
             refreshCode: function () {
+                alert(this.uuid())
                 this.src = "captcha.jpg?t=" + $.now();
             },
             login: function (event) {

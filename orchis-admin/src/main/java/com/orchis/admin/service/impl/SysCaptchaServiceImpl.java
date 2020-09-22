@@ -58,10 +58,8 @@ public class SysCaptchaServiceImpl extends ServiceImpl<SysCaptchaDao, SysCaptcha
         if(captchaEntity == null){
             return false;
         }
-
         //删除验证码
         this.removeById(uuid);
-
         if(captchaEntity.getCode().equalsIgnoreCase(code) && captchaEntity.getExpireTime().getTime() >= System.currentTimeMillis()){
             return true;
         }
